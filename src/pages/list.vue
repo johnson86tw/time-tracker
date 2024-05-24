@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { deleteItem, fetchList } from '@/api'
 import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+dayjs.extend(duration)
+
 import { errorToastOptions, showLoading } from '@/utils'
 
 type Item = {
@@ -60,6 +63,21 @@ async function onClickDelete(index: number) {
 		})
 	}
 }
+
+function getDate(item: Item) {
+	return dayjs(new Date(item.start)).format('M/DD')
+}
+
+function getTime(item: Item) {
+	return dayjs(new Date(item.start)).format('hh:mm A')
+}
+
+function getDuration(item: Item) {
+	const diff = dayjs(item.end).diff(dayjs(item.start), 'second')
+	const duration = dayjs.duration(diff, 'second')
+	const totalMinutes = duration.hours() * 60 + duration.minutes()
+	return `${totalMinutes} min`
+}
 </script>
 
 <template>
@@ -67,7 +85,11 @@ async function onClickDelete(index: number) {
 		<van-pull-refresh v-model="loading" @refresh="onRefresh">
 			<van-list v-model:loading="loading" :finished="finished" v-model:error="loadError" @load="onLoad">
 				<van-swipe-cell v-for="(item, i) in displayList" :key="i">
-					<van-cell :title="item.start" :value="item.note" />
+					<van-cell
+						:title="getDate(item) + ' - ' + getDuration(item)"
+						:label="getTime(item)"
+						:value="item.note"
+					/>
 					<template #right>
 						<van-button square type="danger" text="Delete" @click="onClickDelete(i)" />
 						<!-- <van-button square type="primary" text="Edit" /> -->
