@@ -5,14 +5,16 @@ import dayjs from 'dayjs'
 import { ofetch } from 'ofetch'
 import { errorToastOptions } from '@/utils'
 
-type Item = {
-	start: string
-	end: string
-	duration: string
-	note: string
-}
+// @todo 下拉更新
 
-const list = ref<Item[]>([])
+const list = ref<
+	{
+		start: string
+		end: string
+		duration: string
+		note: string
+	}[]
+>([])
 const loading = ref(false)
 const finished = ref(false)
 

@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { addItem } from '@/api'
+import { showLoading, errorToastOptions } from '@/utils'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 
 dayjs.extend(duration)
+
+const FORMAT = 'YYYY/M/D HH:mm:ss'
 
 const isTiming = ref(false)
 const start = ref('')
@@ -19,11 +23,11 @@ const displayTime = computed(() => {
 let interval: any
 
 async function onClickStart() {
-	start.value = dayjs().format('YYYY/M/D HH:mm:ss')
-	now.value = dayjs().format('YYYY/M/D HH:mm:ss')
+	start.value = dayjs().format(FORMAT)
+	now.value = dayjs().format(FORMAT)
 
 	interval = setInterval(() => {
-		now.value = dayjs().format('YYYY/M/D HH:mm:ss')
+		now.value = dayjs().format(FORMAT)
 		console.log('now', now.value)
 	}, 1000)
 
@@ -31,8 +35,27 @@ async function onClickStart() {
 }
 
 async function onClickEnd() {
+	// @todo show dialog to input note
+	showLoading()
 	isTiming.value = false
 	clearInterval(interval)
+
+	const end = dayjs().format(FORMAT)
+
+	try {
+		await addItem({
+			start: start.value,
+			end,
+			note: '',
+		})
+		closeToast()
+	} catch (err: any) {
+		closeToast()
+		showFailToast({
+			message: err.message,
+			...errorToastOptions,
+		})
+	}
 }
 </script>
 

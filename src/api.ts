@@ -5,14 +5,7 @@ export async function fetchList() {
 	return await ofetch(apiUrl)
 }
 
-export async function addItem(data: {
-	action: 'post'
-	data: {
-		start: string
-		end: string
-		note: string
-	}
-}) {
+export async function addItem(data: { start: string; end: string; note: string }) {
 	await ofetch(apiUrl, {
 		method: 'POST',
 		headers: {
