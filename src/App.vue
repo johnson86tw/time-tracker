@@ -1,20 +1,29 @@
 <script setup lang="ts">
 import packageJson from '../package.json'
+import { useMainStore } from '@/stores/main'
 
-type Tabbar = 'home' | 'list'
+type Tabbar = '' | 'home' | 'list'
 
 const route = useRoute()
+const router = useRouter()
 
 watch(
 	() => route.name,
 	() => {
+		// check login
+		const mainStore = useMainStore()
+		if (!mainStore.isLogin && route.name !== 'login') {
+			router.push({ name: 'login' })
+			return
+		}
+
 		if (route.name) {
 			tabbar.value = route.name as Tabbar
 		}
 	},
 )
 
-const tabbar = ref<Tabbar>('home')
+const tabbar = ref<Tabbar>('')
 </script>
 
 <template>

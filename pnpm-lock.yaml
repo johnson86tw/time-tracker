@@ -38,6 +38,9 @@ importers:
       vue3-easy-data-table:
         specifier: ^1.5.47
         version: 1.5.47(typescript@5.4.5)
+      vue3-google-login:
+        specifier: ^2.0.26
+        version: 2.0.26(vue@3.4.27(typescript@5.4.5))
     devDependencies:
       '@types/node':
         specifier: ^20.12.12
@@ -2393,6 +2396,11 @@ packages:
 
   vue3-easy-data-table@1.5.47:
     resolution: {integrity: sha512-q0bZBlWIwQ3FIhB+F98ylFPfBJWiS3Xv7QqBe3xS5MbRNZP96RFjaQn7C0Pi0J/aaucNW8gFWxPyh9NESS1ehw==}
+
+  vue3-google-login@2.0.26:
+    resolution: {integrity: sha512-BuTSIeSjINNHNPs+BDF4COnjWvff27IfCBDxK6JPRqvm57lF8iK4B3+zcG8ud6BXfZdyuiDlxletbEDgg4/RFA==}
+    peerDependencies:
+      vue: ^3.0.3
 
   vue@3.4.27:
     resolution: {integrity: sha512-8s/56uK6r01r1icG/aEOHqyMVxd1bkYcSe9j8HcKtr/xTOFWvnzIVTehNW+5Yt89f+DLBe4A569pnZLS5HzAMA==}
@@ -4965,6 +4973,10 @@ snapshots:
       vue: 3.4.27(typescript@5.4.5)
     transitivePeerDependencies:
       - typescript
+
+  vue3-google-login@2.0.26(vue@3.4.27(typescript@5.4.5)):
+    dependencies:
+      vue: 3.4.27(typescript@5.4.5)
 
   vue@3.4.27(typescript@5.4.5):
     dependencies:

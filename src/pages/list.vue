@@ -17,12 +17,29 @@ const list = ref<
 >([])
 const loading = ref(false)
 const finished = ref(false)
+const loadError = ref(false)
+const refreshing = ref(false)
 
 async function onLoad() {
-	const res = await ofetch(apiUrl)
-	list.value = res
-	loading.value = false
-	finished.value = true
+	try {
+		const res = await ofetch(apiUrl)
+		list.value = res
+		finished.value = true
+	} catch (err: any) {
+		loadError.value = true
+		showFailToast({
+			message: err.message,
+			...errorToastOptions,
+		})
+	} finally {
+		loading.value = false
+	}
+}
+
+async function onRefresh() {
+	finished.value = false
+	loading.value = true
+	await onLoad()
 }
 
 const displayList = computed(() =>
@@ -54,7 +71,16 @@ async function onClickDelete(index: number) {
 
 <template>
 	<div>
-		<van-list v-model:loading="loading" :finished="finished" loading-text="Loading..." @load="onLoad">
+		<van-list
+			v-model:loading="loading"
+			:finished="finished"
+			loading-text="Loading..."
+			v-model:error="loadError"
+			error-text="Request failed. Click to reload"
+			v-model="refreshing"
+			@refresh="onRefresh"
+			@load="onLoad"
+		>
 			<van-swipe-cell v-for="(item, i) in displayList" :key="i">
 				<van-cell :title="item.start" :value="item.note" />
 				<template #right>

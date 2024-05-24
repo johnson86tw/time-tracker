@@ -20,7 +20,8 @@
 		"vfonts": "^0.0.3",
 		"vue": "^3.4.21",
 		"vue-router": "4",
-		"vue3-easy-data-table": "^1.5.47"
+		"vue3-easy-data-table": "^1.5.47",
+		"vue3-google-login": "^2.0.26"
 	},
 	"devDependencies": {
 		"@types/node": "^20.12.12",
