@@ -1,29 +1,24 @@
 <script setup lang="ts">
-import { deleteItem } from '@/api'
-import { apiUrl } from '@/config'
+import { deleteItem, fetchList } from '@/api'
 import dayjs from 'dayjs'
-import { ofetch } from 'ofetch'
-import { errorToastOptions } from '@/utils'
+import { errorToastOptions, showLoading } from '@/utils'
 
-// @todo 下拉更新
+type Item = {
+	start: string
+	end: string
+	duration: string
+	note: string
+}
 
-const list = ref<
-	{
-		start: string
-		end: string
-		duration: string
-		note: string
-	}[]
->([])
+const list = ref<Item[]>([])
 const loading = ref(false)
 const finished = ref(false)
 const loadError = ref(false)
-const refreshing = ref(false)
 
 async function onLoad() {
 	try {
-		const res = await ofetch(apiUrl)
-		list.value = res
+		const res = await fetchList()
+		list.value = res as unknown as Item[]
 		finished.value = true
 	} catch (err: any) {
 		loadError.value = true
@@ -51,44 +46,35 @@ const displayList = computed(() =>
 		.sort((a, b) => (dayjs(a.start, 'MM/DD HH:mm').isAfter(dayjs(b.start, 'MM/DD HH:mm')) ? -1 : 1)),
 )
 
-const deleting = ref(false)
-
 async function onClickDelete(index: number) {
-	deleting.value = true
+	showLoading()
 	try {
 		await deleteItem(index)
-		await onLoad()
+		await onRefresh()
+		closeToast()
 	} catch (err: any) {
+		closeToast()
 		showFailToast({
 			message: err.message,
 			...errorToastOptions,
 		})
-	} finally {
-		deleting.value = false
 	}
 }
 </script>
 
 <template>
 	<div>
-		<van-list
-			v-model:loading="loading"
-			:finished="finished"
-			loading-text="Loading..."
-			v-model:error="loadError"
-			error-text="Request failed. Click to reload"
-			v-model="refreshing"
-			@refresh="onRefresh"
-			@load="onLoad"
-		>
-			<van-swipe-cell v-for="(item, i) in displayList" :key="i">
-				<van-cell :title="item.start" :value="item.note" />
-				<template #right>
-					<van-button square type="danger" text="Delete" @click="onClickDelete(i)" />
-					<!-- <van-button square type="primary" text="Edit" /> -->
-				</template>
-			</van-swipe-cell>
-		</van-list>
+		<van-pull-refresh v-model="loading" @refresh="onRefresh">
+			<van-list v-model:loading="loading" :finished="finished" v-model:error="loadError" @load="onLoad">
+				<van-swipe-cell v-for="(item, i) in displayList" :key="i">
+					<van-cell :title="item.start" :value="item.note" />
+					<template #right>
+						<van-button square type="danger" text="Delete" @click="onClickDelete(i)" />
+						<!-- <van-button square type="primary" text="Edit" /> -->
+					</template>
+				</van-swipe-cell>
+			</van-list>
+		</van-pull-refresh>
 	</div>
 </template>
 

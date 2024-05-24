@@ -1,3 +1,4 @@
+import { disableGoogleLogin } from '@/config'
 import { defineStore } from 'pinia'
 
 export const useMainStore = defineStore('main', {
@@ -8,7 +9,7 @@ export const useMainStore = defineStore('main', {
 	}),
 	getters: {
 		isLogin(): boolean {
-			return true || this.credential !== ''
+			return disableGoogleLogin || this.credential !== ''
 		},
 	},
 	actions: {

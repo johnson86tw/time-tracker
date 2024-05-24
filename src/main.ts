@@ -13,6 +13,13 @@ import { googleClientId } from './config'
 
 const app = createApp(App)
 
+// ========== set vant default language to English ==========
+import { Locale } from 'vant'
+import enUS from 'vant/es/locale/lang/en-US'
+
+Locale.use('en-US', enUS)
+// ==========================================================
+
 app.use(router)
 app.use(createPinia())
 

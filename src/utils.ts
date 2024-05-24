@@ -7,7 +7,7 @@ export const errorToastOptions = {
 
 export function showLoading() {
 	showLoadingToast({
-		message: 'Loading...',
 		forbidClick: true,
+		duration: 0,
 	})
 }
