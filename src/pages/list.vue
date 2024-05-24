@@ -38,13 +38,14 @@ async function onClickDelete(index: number) {
 	deleting.value = true
 	try {
 		await deleteItem(index)
+		await onLoad()
 	} catch (err: any) {
 		showFailToast({
 			message: err.message,
 			...errorToastOptions,
 		})
 	} finally {
-		onLoad()
+		deleting.value = false
 	}
 }
 </script>
