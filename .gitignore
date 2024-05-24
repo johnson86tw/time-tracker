@@ -1,0 +1,9 @@
+node_modules
+.DS_Store
+dist
+dev-dist
+*.local
+.env
+auto-import.d.ts
+auto-imports.d.ts
+components.d.ts
