@@ -68,7 +68,7 @@ async function onClickEnd() {
 					<van-button v-if="!isTiming" type="primary" round size="large" @click="onClickStart">
 						Start
 					</van-button>
-					<van-button v-else color="#DD5746" round size="large" @click="onClickEnd">End</van-button>
+					<van-button v-else color="#DD5746" round size="large" @click="onClickEnd">Stop</van-button>
 				</div>
 			</div>
 		</div>

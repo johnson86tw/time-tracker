@@ -1,4 +1,4 @@
-import { disableGoogleLogin } from '@/config'
+import { disableLogin } from '@/config'
 import { defineStore } from 'pinia'
 
 export const useMainStore = defineStore('main', {
@@ -9,7 +9,7 @@ export const useMainStore = defineStore('main', {
 	}),
 	getters: {
 		isLogin(): boolean {
-			return disableGoogleLogin || this.credential !== ''
+			return disableLogin || this.credential !== ''
 		},
 	},
 	actions: {
@@ -19,5 +19,9 @@ export const useMainStore = defineStore('main', {
 		clearCredential(): void {
 			this.credential = ''
 		},
+	},
+	persist: {
+		key: 'time-tracker-password',
+		paths: ['credential'],
 	},
 })

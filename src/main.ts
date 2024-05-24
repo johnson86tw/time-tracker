@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import Vue3EasyDataTable from 'vue3-easy-data-table'
 import vue3GoogleLogin from 'vue3-google-login'
@@ -21,7 +22,9 @@ Locale.use('en-US', enUS)
 // ==========================================================
 
 app.use(router)
-app.use(createPinia())
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+app.use(pinia)
 
 app.component('EasyDataTable', Vue3EasyDataTable)
 
