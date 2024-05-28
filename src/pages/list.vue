@@ -85,7 +85,7 @@ function getDuration(item: Item) {
 </script>
 
 <template>
-	<div>
+	<div class="overflow-y-scroll">
 		<van-pull-refresh v-model="loading" @refresh="onRefresh">
 			<van-list v-model:loading="loading" :finished="finished" v-model:error="loadError" @load="onLoad">
 				<van-swipe-cell v-for="(item, i) in displayList" :key="i">
