@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { deleteItem, fetchList } from '@/api'
+import { useApiExercise } from '@/api'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 dayjs.extend(duration)
@@ -18,10 +18,13 @@ const loading = ref(false)
 const finished = ref(false)
 const loadError = ref(false)
 
+const { deleteItem, fetchList } = useApiExercise()
+
 async function onLoad() {
 	try {
 		const res = await fetchList()
-		list.value = res as unknown as Item[]
+		console.log(res)
+		list.value = res || []
 		finished.value = true
 	} catch (err: any) {
 		loadError.value = true
@@ -100,4 +103,8 @@ function getDuration(item: Item) {
 	</div>
 </template>
 
-<style lang="scss"></style>
+<style lang="css" scoped>
+:deep(.van-button) {
+	--van-button-default-height: 100%;
+}
+</style>

@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { useMainStore } from '@/stores/main'
-import type { CallbackTypes } from 'vue3-google-login'
+// import type { CallbackTypes } from 'vue3-google-login'
 import { errorToastOptions, showLoading } from '@/utils'
-import { login } from '@/api'
+import { useApiExercise } from '@/api'
 
 const mainStore = useMainStore()
 const router = useRouter()
 
+const { login } = useApiExercise()
+
 // access_token
-const googleLoginCallback: CallbackTypes.TokenResponseCallback = response => {
-	console.log('googleLoginCallback', response)
-	mainStore.setCredential(response.access_token)
-	router.push({ name: 'home' })
-}
+// const googleLoginCallback: CallbackTypes.TokenResponseCallback = response => {
+// 	console.log('googleLoginCallback', response)
+// 	mainStore.setCredential(response.access_token)
+// 	router.push({ name: 'home' })
+// }
 
 // credential
 // const googleLoginCallback: CallbackTypes.CredentialCallback = response => {

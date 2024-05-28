@@ -30,7 +30,7 @@ const tabbar = ref<Tabbar>('')
 	<van-config-provider theme="dark" class="h-screen">
 		<RouterView class="h-[calc(100%-50px)]" />
 
-		<van-tabbar v-model="tabbar">
+		<van-tabbar v-model="tabbar" v-if="route.name !== 'login'">
 			<van-tabbar-item to="/" name="home" icon="home-o"></van-tabbar-item>
 			<van-tabbar-item to="/list" name="list" icon="notes-o"></van-tabbar-item>
 		</van-tabbar>

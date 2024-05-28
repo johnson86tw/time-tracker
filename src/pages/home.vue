@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { addItem } from '@/api'
+import { useApiExercise } from '@/api'
 import { showLoading, errorToastOptions } from '@/utils'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
-
 dayjs.extend(duration)
 
 const FORMAT = 'YYYY/M/D HH:mm:ss'
+
+const { addItem } = useApiExercise()
 
 const isTiming = ref(false)
 const start = ref('')

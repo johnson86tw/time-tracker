@@ -1,83 +1,100 @@
 import { ofetch } from 'ofetch'
 import { apiUrl } from '@/config'
-import { useMainStore } from './stores/main'
+import { useMainStore } from '@/stores/main'
 
-export async function fetchList() {
-	const res = await ofetch(apiUrl, {
-		headers: {
-			'Content-Type': 'text/plain;charset=utf-8', // allow CORS https://stackoverflow.com/a/68933465/10752354
-		},
-		retry: 0,
-	})
+export function useApiExercise() {
+	const router = useRouter()
 
-	if (res.status === 'error') {
-		throw new Error(res.message)
+	function handleResponseError(res: { status: string; message: string }) {
+		if (res.message === 'Invalid credentials') {
+			router.push('/login')
+			throw new Error('Invalid credentials')
+		}
+
+		if (res.status === 'error') {
+			throw new Error(res.message)
+		}
 	}
 
-	return res
-}
-
-export async function login(password: string) {
-	const res = await ofetch(apiUrl, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'text/plain;charset=utf-8', // allow CORS https://stackoverflow.com/a/68933465/10752354
-		},
-		body: {
-			action: 'login',
-			data: {
-				password,
+	async function login(password: string) {
+		const res = await ofetch(apiUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'text/plain;charset=utf-8', // allow CORS https://stackoverflow.com/a/68933465/10752354
 			},
-		},
-	})
+			body: {
+				action: 'login',
+				data: {
+					password,
+				},
+			},
+		})
 
-	if (res.status === 'error') {
-		throw new Error(res.message)
+		handleResponseError(res)
+
+		return res
 	}
 
-	return res
-}
+	async function fetchList() {
+		const mainStore = useMainStore()
+		if (!mainStore.credential) throw new Error('No credential found')
 
-export async function addItem(data: { start: string; end: string; note: string }) {
-	const mainStore = useMainStore()
+		const res = await ofetch(`${apiUrl}?token=${mainStore.credential}`, {
+			headers: {
+				'Content-Type': 'text/plain;charset=utf-8', // allow CORS https://stackoverflow.com/a/68933465/10752354
+			},
+			retry: 0, // GET default is 1
+		})
 
-	const res = await ofetch(apiUrl, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'text/plain;charset=utf-8', // allow CORS https://stackoverflow.com/a/68933465/10752354
-		},
-		body: {
-			action: 'post',
-			token: mainStore.credential,
-			data,
-		},
-	})
+		handleResponseError(res)
 
-	if (res.status === 'error') {
-		throw new Error(res.message)
+		return res
 	}
 
-	return res
-}
+	async function addItem(data: { start: string; end: string; note: string }) {
+		const mainStore = useMainStore()
 
-export async function deleteItem(index: number) {
-	const mainStore = useMainStore()
+		const res = await ofetch(apiUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'text/plain;charset=utf-8', // allow CORS https://stackoverflow.com/a/68933465/10752354
+			},
+			body: {
+				action: 'post',
+				token: mainStore.credential,
+				data,
+			},
+		})
 
-	const res = await ofetch(apiUrl, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'text/plain;charset=utf-8', // allow CORS https://stackoverflow.com/a/68933465/10752354
-		},
-		body: {
-			action: 'delete',
-			token: mainStore.credential,
-			index,
-		},
-	})
+		handleResponseError(res)
 
-	if (res.status === 'error') {
-		throw new Error(res.message)
+		return res
 	}
 
-	return res
+	async function deleteItem(index: number) {
+		const mainStore = useMainStore()
+
+		const res = await ofetch(apiUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'text/plain;charset=utf-8', // allow CORS https://stackoverflow.com/a/68933465/10752354
+			},
+			body: {
+				action: 'delete',
+				token: mainStore.credential,
+				index,
+			},
+		})
+
+		handleResponseError(res)
+
+		return res
+	}
+
+	return {
+		login,
+		fetchList,
+		addItem,
+		deleteItem,
+	}
 }
