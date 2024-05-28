@@ -36,7 +36,11 @@ const tabbar = ref<Tabbar>('')
 		</van-tabbar>
 	</van-config-provider>
 
-	<div class="fixed right-0 bottom-[0px] z-10 text-gray-500 text-xs">v{{ packageJson.version }}</div>
+	<div class="fixed left-[2px] bottom-[0px] z-10 text-gray-500 text-xs">v{{ packageJson.version }}</div>
 </template>
 
-<style lang="scss"></style>
+<style lang="css" scoped>
+:deep(.van-tabbar) {
+	--van-tabbar-height: 60px;
+}
+</style>

@@ -71,7 +71,7 @@ export function useApiExercise() {
 		return res
 	}
 
-	async function deleteItem(index: number) {
+	async function deleteItem(id: string) {
 		const mainStore = useMainStore()
 
 		const res = await ofetch(apiUrl, {
@@ -82,7 +82,7 @@ export function useApiExercise() {
 			body: {
 				action: 'delete',
 				token: mainStore.credential,
-				index,
+				id,
 			},
 		})
 

@@ -7,6 +7,7 @@ dayjs.extend(duration)
 import { errorToastOptions, showLoading } from '@/utils'
 
 type Item = {
+	id: string
 	start: string
 	end: string
 	duration: string
@@ -52,10 +53,10 @@ const displayList = computed(() =>
 		.sort((a, b) => (dayjs(a.start, 'MM/DD HH:mm').isAfter(dayjs(b.start, 'MM/DD HH:mm')) ? -1 : 1)),
 )
 
-async function onClickDelete(index: number) {
+async function onClickDelete(item: Item) {
 	showLoading()
 	try {
-		await deleteItem(index)
+		await deleteItem(item.id)
 		await onRefresh()
 		closeToast()
 	} catch (err: any) {
@@ -94,7 +95,7 @@ function getDuration(item: Item) {
 						:value="item.note"
 					/>
 					<template #right>
-						<van-button square type="danger" text="Delete" @click="onClickDelete(i)" />
+						<van-button square type="danger" text="Delete" @click="onClickDelete(item)" />
 						<!-- <van-button square type="primary" text="Edit" /> -->
 					</template>
 				</van-swipe-cell>
