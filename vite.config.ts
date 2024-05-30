@@ -45,7 +45,7 @@ export default defineConfig({
 			// 	],
 			// },
 			manifest: {
-				name: 'time-tracker',
+				name: 'Time Tracker',
 				short_name: 'time-tracker',
 				// start_url: '.',
 				// display: 'standalone',
