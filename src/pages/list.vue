@@ -5,28 +5,46 @@ import duration from 'dayjs/plugin/duration'
 dayjs.extend(duration)
 
 import { errorToastOptions, showLoading } from '@/utils'
+import { useExerciseStore } from '@/stores/exercise'
+import { ExerciseItem } from '@/types'
 
-type Item = {
-	id: string
-	start: string
-	end: string
-	duration: string
-	note: string
-}
+const exerciseStore = useExerciseStore()
 
-const list = ref<Item[]>([])
+const list = ref<ExerciseItem[]>(exerciseStore.list)
 const loading = ref(false)
 const finished = ref(false)
 const loadError = ref(false)
 
 const { deleteItem, fetchList } = useApiExercise()
 
+// feat: 首次載入背景偷偷更新
+onMounted(async () => {
+	// 如果 store 沒有資料，要顯示 loading
+	if (!exerciseStore.list.length) {
+		await onRefresh()
+		return
+	}
+
+	// 如果 store 有資料，背景偷偷更新
+	try {
+		const res = await fetchList()
+		list.value = res
+		exerciseStore.updateList(res)
+	} catch (err: any) {
+		loadError.value = true
+		showFailToast({
+			message: err.message,
+			...errorToastOptions,
+		})
+	}
+})
+
 async function onLoad() {
 	try {
 		const res = await fetchList()
-		console.log(res)
 		list.value = res || []
 		finished.value = true
+		exerciseStore.updateList(res)
 	} catch (err: any) {
 		loadError.value = true
 		showFailToast({
@@ -53,7 +71,7 @@ const displayList = computed(() =>
 		.sort((a, b) => (dayjs(a.start, 'MM/DD HH:mm').isAfter(dayjs(b.start, 'MM/DD HH:mm')) ? -1 : 1)),
 )
 
-async function onClickDelete(item: Item) {
+async function onClickDelete(item: ExerciseItem) {
 	showLoading()
 	try {
 		await deleteItem(item.id)
@@ -68,26 +86,36 @@ async function onClickDelete(item: Item) {
 	}
 }
 
-function getDate(item: Item) {
+function getDate(item: ExerciseItem) {
 	return dayjs(new Date(item.start)).format('M/DD')
 }
 
-function getTime(item: Item) {
+function getTime(item: ExerciseItem) {
 	return dayjs(new Date(item.start)).format('hh:mm A')
 }
 
-function getDuration(item: Item) {
+function getDuration(item: ExerciseItem) {
 	const diff = dayjs(item.end).diff(dayjs(item.start), 'second')
 	const duration = dayjs.duration(diff, 'second')
 	const totalMinutes = duration.hours() * 60 + duration.minutes()
 	return `${totalMinutes} min`
 }
+
+/**
+ * immediate-check: A load event will be triggered immediately
+ */
 </script>
 
 <template>
 	<div class="overflow-y-scroll">
 		<van-pull-refresh v-model="loading" @refresh="onRefresh">
-			<van-list v-model:loading="loading" :finished="finished" v-model:error="loadError" @load="onLoad">
+			<van-list
+				v-model:loading="loading"
+				:finished="finished"
+				v-model:error="loadError"
+				@load="onLoad"
+				:immediate-check="false"
+			>
 				<van-swipe-cell v-for="(item, i) in displayList" :key="i">
 					<van-cell
 						:title="getDate(item) + ' - ' + getDuration(item)"
