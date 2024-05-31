@@ -1,45 +1,24 @@
 <script setup lang="ts">
-import { useExerciseStore } from '@/stores/exercise'
+import { useExerciseStore, FORMAT } from '@/stores/exercise'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 dayjs.extend(duration)
 
-const FORMAT = 'YYYY/M/D HH:mm:ss'
+const exerciseStore = useExerciseStore()
+const { isTiming, start, displayTiming } = storeToRefs(exerciseStore)
 
-const isTiming = ref(false)
-const start = ref('')
-const now = ref('')
-
-const displayTime = computed(() => {
-	if (isTiming.value) {
-		const diff = dayjs(now.value).diff(dayjs(start.value), 'second')
-		return dayjs.duration(diff, 'seconds').format('HH:mm:ss')
-	}
-	return 0
-})
-
-let interval: any
-
-async function onClickStart() {
-	start.value = dayjs().format(FORMAT)
-	now.value = dayjs().format(FORMAT)
-
-	interval = setInterval(() => {
-		now.value = dayjs().format(FORMAT)
-		console.log('now', now.value)
-	}, 1000)
-
-	isTiming.value = true
+function onClickStart() {
+	exerciseStore.startTiming()
 }
 
 async function onClickEnd() {
 	isTiming.value = false
-	clearInterval(interval)
+	exerciseStore.clearTimingInterval()
 
 	const end = dayjs().format(FORMAT)
 
 	try {
-		useExerciseStore().appendItem({
+		exerciseStore.appendItem({
 			id: new Date().getTime(),
 			start: start.value,
 			end,
@@ -56,7 +35,7 @@ async function onClickEnd() {
 	<div class="relative">
 		<div class="h-full flex items-center justify-center">
 			<div class="flex flex-col gap-10 justify-center items-center">
-				<div class="text-3xl">{{ displayTime }}</div>
+				<div class="text-3xl">{{ displayTiming }}</div>
 				<div class="w-32">
 					<van-button v-if="!isTiming" type="primary" round size="large" @click="onClickStart">
 						Start

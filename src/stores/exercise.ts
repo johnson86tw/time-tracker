@@ -6,15 +6,26 @@ import { ofetch } from 'ofetch'
 import { apiUrl } from '@/config'
 import { useMainStore } from '@/stores/main'
 
+export const FORMAT = 'YYYY/M/D HH:mm:ss'
+export let interval = 0
+
 export const useExerciseStore = defineStore('exercise', {
 	state: (): {
 		list: ExerciseItem[]
 		lastUpdated: number // timestamp
 		failedItems: ExerciseItem[]
+
+		start: string
+		now: string
+		isTiming: boolean
 	} => ({
 		list: [],
 		lastUpdated: 0,
 		failedItems: [],
+
+		start: '',
+		now: '',
+		isTiming: false,
 	}),
 	getters: {
 		displayList(): ExerciseItem[] {
@@ -25,8 +36,32 @@ export const useExerciseStore = defineStore('exercise', {
 				}))
 				.sort((a: ExerciseItem, b: ExerciseItem) => Number(b.id) - Number(a.id))
 		},
+
+		displayTiming(): string {
+			if (this.isTiming) {
+				const diff = dayjs(this.now).diff(dayjs(this.start), 'second')
+				return dayjs.duration(diff, 'seconds').format('HH:mm:ss')
+			}
+			return '0'
+		},
 	},
 	actions: {
+		startTiming() {
+			this.start = dayjs().format(FORMAT)
+			this.now = dayjs().format(FORMAT)
+
+			interval = setInterval(() => {
+				this.now = dayjs().format(FORMAT)
+				console.log('now', this.now)
+			}, 1000)
+
+			this.isTiming = true
+		},
+
+		clearTimingInterval() {
+			clearInterval(interval)
+		},
+
 		async updateList() {
 			this.list = await useApiExercise().fetchList()
 			this.lastUpdated = Date.now()

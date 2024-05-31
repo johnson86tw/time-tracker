@@ -4,10 +4,8 @@ import router from './router'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
-import Vue3EasyDataTable from 'vue3-easy-data-table'
 import vue3GoogleLogin from 'vue3-google-login'
 
-import 'vue3-easy-data-table/dist/style.css'
 import 'vant/lib/index.css' // vant 4
 import './style.css'
 import { googleClientId } from './config'
@@ -25,8 +23,6 @@ app.use(router)
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
-
-app.component('EasyDataTable', Vue3EasyDataTable)
 
 app.use(vue3GoogleLogin, {
 	clientId: googleClientId,
