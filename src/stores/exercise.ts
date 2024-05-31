@@ -195,10 +195,34 @@ export function useApiExercise() {
 		return res
 	}
 
+	async function updateNote(id: number, note: string) {
+		const mainStore = useMainStore()
+
+		const res = await ofetch(apiUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'text/plain;charset=utf-8', // allow CORS https://stackoverflow.com/a/68933465/10752354
+			},
+			body: {
+				action: 'update',
+				token: mainStore.credential,
+				id,
+				data: {
+					note,
+				},
+			},
+		})
+
+		handleResponseError(res)
+
+		return res
+	}
+
 	return {
 		login,
 		fetchList,
 		addItem,
 		deleteItem,
+		updateNote,
 	}
 }

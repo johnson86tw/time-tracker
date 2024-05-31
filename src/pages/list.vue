@@ -3,8 +3,8 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 dayjs.extend(duration)
 
-import { errorToastOptions } from '@/utils'
-import { useExerciseStore } from '@/stores/exercise'
+import { errorToastOptions, showLoading } from '@/utils'
+import { useApiExercise, useExerciseStore } from '@/stores/exercise'
 import { ExerciseItem } from '@/types'
 
 const exerciseStore = useExerciseStore()
@@ -85,7 +85,36 @@ async function onClickUploadFailedItem(item: ExerciseItem) {
 	}
 }
 
+// ============================ Dialog ============================
+const showDialog = ref(false)
+const note = ref('')
+const editingItemId = ref(0)
+
+function onClickEdit(item: ExerciseItem) {
+	note.value = item.note
+	editingItemId.value = item.id
+	showDialog.value = true
+}
+
+async function onDialogConfirm() {
+	try {
+		showLoading()
+		await useApiExercise().updateNote(editingItemId.value, note.value)
+		await exerciseStore.updateList()
+		closeToast()
+	} catch (err: any) {
+		console.error(err)
+		closeToast()
+		showFailToast({
+			message: err.message,
+			...errorToastOptions,
+		})
+	}
+}
+// ============================ Dialog end ============================
+
 /**
+ * template:
  * immediate-check: A load event will be triggered immediately
  */
 </script>
@@ -101,20 +130,23 @@ async function onClickUploadFailedItem(item: ExerciseItem) {
 				:immediate-check="false"
 			>
 				<van-swipe-cell v-for="(item, i) in displayList" :key="i">
-					<van-cell
-						:title="getDate(item) + ' - ' + getDuration(item)"
-						:label="getTime(item)"
-						:value="item.note"
-					>
+					<van-cell :title="getDate(item) + ' - ' + getDuration(item)" :label="getTime(item)">
 						<template #right-icon>
-							<van-button
-								v-if="exerciseStore.isFailedItem(item.id)"
-								size="mini"
-								:loading="isUploadingFailedItem"
-								@click="onClickUploadFailedItem(item)"
-							>
-								Upload
-							</van-button>
+							<div class="flex items-center gap-2">
+								<div>
+									{{ item.note }}
+								</div>
+								<van-button
+									v-if="exerciseStore.isFailedItem(item.id)"
+									size="mini"
+									:loading="isUploadingFailedItem"
+									@click="onClickUploadFailedItem(item)"
+								>
+									Upload
+								</van-button>
+
+								<van-button size="mini" icon="edit" @click="onClickEdit(item)"></van-button>
+							</div>
 						</template>
 					</van-cell>
 
@@ -125,6 +157,12 @@ async function onClickUploadFailedItem(item: ExerciseItem) {
 				</van-swipe-cell>
 			</van-list>
 		</van-pull-refresh>
+
+		<van-dialog v-model:show="showDialog" title="Edit note" show-cancel-button @confirm="onDialogConfirm">
+			<div class="p-5">
+				<van-field v-model="note" placeholder="typing some text..." />
+			</div>
+		</van-dialog>
 	</div>
 </template>
 
