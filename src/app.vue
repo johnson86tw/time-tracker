@@ -2,8 +2,6 @@
 import packageJson from '../package.json'
 import { useMainStore } from '@/stores/main'
 
-type Tabbar = '' | 'home' | 'list'
-
 const route = useRoute()
 const router = useRouter()
 
@@ -18,12 +16,12 @@ watch(
 		}
 
 		if (route.name) {
-			tabbar.value = route.name as Tabbar
+			tabbar.value = route.name as string
 		}
 	},
 )
 
-const tabbar = ref<Tabbar>('')
+const tabbar = ref('')
 </script>
 
 <template>
