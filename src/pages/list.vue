@@ -8,7 +8,7 @@ import { useApiExercise, useExerciseStore } from '@/stores/exercise'
 import { ExerciseItem } from '@/types'
 
 const exerciseStore = useExerciseStore()
-const { displayList } = storeToRefs(exerciseStore)
+const { displayList, isAppending } = storeToRefs(exerciseStore)
 
 const loading = ref(false)
 const finished = ref(false)
@@ -68,12 +68,14 @@ function getDuration(item: ExerciseItem) {
 	return `${totalMinutes} min`
 }
 
-const isUploadingFailedItem = ref(false)
+// ============================ Upload ============================
 
-async function onClickUploadFailedItem(item: ExerciseItem) {
+const isUploading = ref(false)
+
+async function onClickUploadItem(item: ExerciseItem) {
 	try {
-		isUploadingFailedItem.value = true
-		await useExerciseStore().uploadFailedItem(item)
+		isUploading.value = true
+		await useExerciseStore().uploadItem(item)
 	} catch (err: any) {
 		console.error(err)
 		showFailToast({
@@ -81,7 +83,7 @@ async function onClickUploadFailedItem(item: ExerciseItem) {
 			...errorToastOptions,
 		})
 	} finally {
-		isUploadingFailedItem.value = false
+		isUploading.value = false
 	}
 }
 
@@ -132,20 +134,21 @@ async function onDialogConfirm() {
 				<van-swipe-cell v-for="(item, i) in displayList" :key="i">
 					<van-cell :title="getDate(item) + ' - ' + getDuration(item)" :label="getTime(item)">
 						<template #right-icon>
-							<div class="flex items-center gap-2">
+							<div class="flex items-center gap-4">
 								<div>
 									{{ item.note }}
 								</div>
+
 								<van-button
-									v-if="exerciseStore.isFailedItem(item.id)"
+									v-if="exerciseStore.isUnuploaded(item.id)"
 									size="mini"
-									:loading="isUploadingFailedItem"
-									@click="onClickUploadFailedItem(item)"
+									:loading="isUploading || isAppending"
+									@click="onClickUploadItem(item)"
 								>
 									Upload
 								</van-button>
 
-								<van-button size="mini" icon="edit" @click="onClickEdit(item)"></van-button>
+								<van-button v-else size="mini" icon="edit" @click="onClickEdit(item)"></van-button>
 							</div>
 						</template>
 					</van-cell>

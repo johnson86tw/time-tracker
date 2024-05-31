@@ -13,7 +13,8 @@ export const useExerciseStore = defineStore('exercise', {
 	state: (): {
 		list: ExerciseItem[]
 		lastUpdated: number // timestamp
-		failedItems: ExerciseItem[]
+		unuploadedItems: ExerciseItem[]
+		isAppending: boolean
 
 		start: string
 		now: string
@@ -21,7 +22,8 @@ export const useExerciseStore = defineStore('exercise', {
 	} => ({
 		list: [],
 		lastUpdated: 0,
-		failedItems: [],
+		unuploadedItems: [],
+		isAppending: false,
 
 		start: '',
 		now: '',
@@ -29,12 +31,9 @@ export const useExerciseStore = defineStore('exercise', {
 	}),
 	getters: {
 		displayList(): ExerciseItem[] {
-			return _.uniqBy([...this.list, ...this.failedItems], 'id')
-				.map((item: ExerciseItem) => ({
-					...item,
-					start: dayjs(new Date(item.start)).format('MM/DD HH:mm'),
-				}))
-				.sort((a: ExerciseItem, b: ExerciseItem) => Number(b.id) - Number(a.id))
+			return _.uniqBy([...this.list, ...this.unuploadedItems], 'id').sort(
+				(a: ExerciseItem, b: ExerciseItem) => Number(b.id) - Number(a.id),
+			)
 		},
 
 		displayTiming(): string {
@@ -64,45 +63,51 @@ export const useExerciseStore = defineStore('exercise', {
 
 		async updateList() {
 			this.list = await useApiExercise().fetchList()
+			this.unuploadedItems = this.unuploadedItems.filter(
+				item =>
+					!this.list.some(listItem => {
+						console.log('list start', dayjs(listItem.start).format(FORMAT))
+						console.log('unuploaded start', item.start)
+						console.log(dayjs(listItem.start).isSame(dayjs(item.start), 'second'))
+						return dayjs(listItem.start).isSame(dayjs(item.start), 'second')
+					}),
+			)
 			this.lastUpdated = Date.now()
 		},
 
 		async appendItem(item: ExerciseItem) {
-			this.list.push(item)
+			this.unuploadedItems.push(item)
 
 			try {
-				await useApiExercise().addItem({
-					start: item.start,
-					end: item.end,
-					note: item.note,
-				})
-			} catch (err: any) {
-				this.failedItems.push(item)
-				throw err
-			}
-		},
-
-		isFailedItem(id: number) {
-			return this.failedItems.some(item => item.id === id)
-		},
-
-		async uploadFailedItem(item: ExerciseItem) {
-			try {
+				this.isAppending = true
 				await useApiExercise().addItem({
 					start: item.start,
 					end: item.end,
 					note: item.note,
 				})
 				await this.updateList()
-				this.failedItems = this.failedItems.filter(failedItem => failedItem.id !== item.id)
-			} catch (err: any) {
-				throw err
+			} catch (e) {
+				throw e
+			} finally {
+				this.isAppending = false
 			}
+		},
+
+		isUnuploaded(id: number) {
+			return this.unuploadedItems.some(item => item.id === id)
+		},
+
+		async uploadItem(item: ExerciseItem) {
+			await useApiExercise().addItem({
+				start: item.start,
+				end: item.end,
+				note: item.note,
+			})
+			await this.updateList()
 		},
 	},
 	persist: {
 		key: 'exercise',
-		paths: ['list', 'lastUpdated', 'failedItems'],
 	},
 })
 
