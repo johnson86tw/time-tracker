@@ -33,6 +33,7 @@ const tabbar = ref<Tabbar>('')
 		<van-tabbar v-model="tabbar" v-if="route.name !== 'login'">
 			<van-tabbar-item to="/" name="home" icon="home-o"></van-tabbar-item>
 			<van-tabbar-item to="/list" name="list" icon="notes-o"></van-tabbar-item>
+			<van-tabbar-item to="/clipboard" name="clipboard" icon="orders-o"></van-tabbar-item>
 		</van-tabbar>
 	</van-config-provider>
 
