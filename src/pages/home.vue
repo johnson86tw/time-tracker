@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { useApiExercise } from '@/api'
-import { showLoading, errorToastOptions } from '@/utils'
+import { useExerciseStore } from '@/stores/exercise'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 dayjs.extend(duration)
 
 const FORMAT = 'YYYY/M/D HH:mm:ss'
-
-const { addItem } = useApiExercise()
 
 const isTiming = ref(false)
 const start = ref('')
@@ -36,26 +33,21 @@ async function onClickStart() {
 }
 
 async function onClickEnd() {
-	// @todo show dialog to input note
-	showLoading()
 	isTiming.value = false
 	clearInterval(interval)
 
 	const end = dayjs().format(FORMAT)
 
 	try {
-		await addItem({
+		useExerciseStore().appendItem({
+			id: new Date().getTime(),
 			start: start.value,
 			end,
+			duration: dayjs(end).diff(dayjs(start.value), 'second').toString(),
 			note: '',
 		})
-		closeToast()
 	} catch (err: any) {
-		closeToast()
-		showFailToast({
-			message: err.message,
-			...errorToastOptions,
-		})
+		console.error(err)
 	}
 }
 </script>

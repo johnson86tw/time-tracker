@@ -1,21 +1,18 @@
 <script setup lang="ts">
-import { useApiExercise } from '@/api'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 dayjs.extend(duration)
 
-import { errorToastOptions, showLoading } from '@/utils'
+import { errorToastOptions } from '@/utils'
 import { useExerciseStore } from '@/stores/exercise'
 import { ExerciseItem } from '@/types'
 
 const exerciseStore = useExerciseStore()
+const { displayList } = storeToRefs(exerciseStore)
 
-const list = ref<ExerciseItem[]>(exerciseStore.list)
 const loading = ref(false)
 const finished = ref(false)
 const loadError = ref(false)
-
-const { deleteItem, fetchList } = useApiExercise()
 
 // feat: 首次載入背景偷偷更新
 onMounted(async () => {
@@ -27,25 +24,19 @@ onMounted(async () => {
 
 	// 如果 store 有資料，背景偷偷更新
 	try {
-		const res = await fetchList()
-		list.value = res
-		exerciseStore.updateList(res)
+		await exerciseStore.updateList()
 	} catch (err: any) {
+		console.error(err)
 		loadError.value = true
-		showFailToast({
-			message: err.message,
-			...errorToastOptions,
-		})
 	}
 })
 
 async function onLoad() {
 	try {
-		const res = await fetchList()
-		list.value = res || []
+		await exerciseStore.updateList()
 		finished.value = true
-		exerciseStore.updateList(res)
 	} catch (err: any) {
+		console.error(err)
 		loadError.value = true
 		showFailToast({
 			message: err.message,
@@ -62,30 +53,6 @@ async function onRefresh() {
 	await onLoad()
 }
 
-const displayList = computed(() =>
-	list.value
-		.map(item => ({
-			...item,
-			start: dayjs(new Date(item.start)).format('MM/DD HH:mm'),
-		}))
-		.sort((a, b) => (dayjs(a.start, 'MM/DD HH:mm').isAfter(dayjs(b.start, 'MM/DD HH:mm')) ? -1 : 1)),
-)
-
-async function onClickDelete(item: ExerciseItem) {
-	showLoading()
-	try {
-		await deleteItem(item.id)
-		await onRefresh()
-		closeToast()
-	} catch (err: any) {
-		closeToast()
-		showFailToast({
-			message: err.message,
-			...errorToastOptions,
-		})
-	}
-}
-
 function getDate(item: ExerciseItem) {
 	return dayjs(new Date(item.start)).format('M/DD')
 }
@@ -99,6 +66,23 @@ function getDuration(item: ExerciseItem) {
 	const duration = dayjs.duration(diff, 'second')
 	const totalMinutes = duration.hours() * 60 + duration.minutes()
 	return `${totalMinutes} min`
+}
+
+const isUploadingFailedItem = ref(false)
+
+async function onClickUploadFailedItem(item: ExerciseItem) {
+	try {
+		isUploadingFailedItem.value = true
+		await useExerciseStore().uploadFailedItem(item)
+	} catch (err: any) {
+		console.error(err)
+		showFailToast({
+			message: err.message,
+			...errorToastOptions,
+		})
+	} finally {
+		isUploadingFailedItem.value = false
+	}
 }
 
 /**
@@ -121,9 +105,21 @@ function getDuration(item: ExerciseItem) {
 						:title="getDate(item) + ' - ' + getDuration(item)"
 						:label="getTime(item)"
 						:value="item.note"
-					/>
+					>
+						<template #right-icon>
+							<van-button
+								v-if="exerciseStore.isFailedItem(item.id)"
+								size="mini"
+								:loading="isUploadingFailedItem"
+								@click="onClickUploadFailedItem(item)"
+							>
+								Upload
+							</van-button>
+						</template>
+					</van-cell>
+
 					<template #right>
-						<van-button square type="danger" text="Delete" @click="onClickDelete(item)" />
+						<!-- <van-button square type="danger" text="Delete" @click="onClickDelete(item)" /> -->
 						<!-- <van-button square type="primary" text="Edit" /> -->
 					</template>
 				</van-swipe-cell>

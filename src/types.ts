@@ -1,5 +1,5 @@
 export type ExerciseItem = {
-	id: string
+	id: number
 	start: string
 	end: string
 	duration: string

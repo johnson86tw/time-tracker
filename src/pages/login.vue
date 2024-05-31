@@ -2,7 +2,7 @@
 import { useMainStore } from '@/stores/main'
 // import type { CallbackTypes } from 'vue3-google-login'
 import { errorToastOptions, showLoading } from '@/utils'
-import { useApiExercise } from '@/api'
+import { useApiExercise } from '@/stores/exercise'
 
 const mainStore = useMainStore()
 const router = useRouter()
