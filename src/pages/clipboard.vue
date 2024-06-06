@@ -7,6 +7,10 @@ const copiedTitle = ref('')
 function onClickCopy(content: string, title: string) {
 	copy(content)
 	copiedTitle.value = title
+
+	// refer to https://www.reddit.com/r/shortcuts/comments/1436y1h/deeplink_url_schemes_for_the_chatgpt_app/?rdt=35021
+	window.location.href = 'com.openai.chat://'
+
 	setTimeout(() => {
 		copiedTitle.value = ''
 	}, 3000)
