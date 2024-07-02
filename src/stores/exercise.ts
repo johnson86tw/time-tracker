@@ -31,8 +31,8 @@ export const useExerciseStore = defineStore('exercise', {
 	}),
 	getters: {
 		displayList(): ExerciseItem[] {
-			return _.uniqBy([...this.list, ...this.unuploadedItems], 'id').sort(
-				(a: ExerciseItem, b: ExerciseItem) => Number(b.id) - Number(a.id),
+			return _.uniqBy([...this.list, ...this.unuploadedItems], 'id').sort((a: ExerciseItem, b: ExerciseItem) =>
+				dayjs(a.start).isBefore(dayjs(b.start)) ? 1 : -1,
 			)
 		},
 
