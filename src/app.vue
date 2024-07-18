@@ -4,24 +4,26 @@ import { useMainStore } from '@/stores/main'
 
 const route = useRoute()
 const router = useRouter()
+const mainStore = useMainStore()
+
+const tabbar = ref(mainStore.lastRouteName)
+
+router.push({ name: tabbar.value })
 
 watch(
 	() => route.name,
 	() => {
 		// check login
-		const mainStore = useMainStore()
 		if (!mainStore.isLogin && route.name !== 'login') {
 			router.push({ name: 'login' })
 			return
 		}
-
-		if (route.name) {
-			tabbar.value = route.name as string
-		}
 	},
 )
 
-const tabbar = ref('')
+watch(tabbar, () => {
+	mainStore.setLastRouteName(tabbar.value)
+})
 </script>
 
 <template>

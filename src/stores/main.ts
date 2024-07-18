@@ -4,8 +4,10 @@ import { defineStore } from 'pinia'
 export const useMainStore = defineStore('main', {
 	state: (): {
 		credential: string
+		lastRouteName: string
 	} => ({
 		credential: '',
+		lastRouteName: 'home',
 	}),
 	getters: {
 		isLogin(): boolean {
@@ -19,9 +21,12 @@ export const useMainStore = defineStore('main', {
 		clearCredential(): void {
 			this.credential = ''
 		},
+		setLastRouteName(routeName: string) {
+			this.lastRouteName = routeName
+		},
 	},
 	persist: {
 		key: 'time-tracker-password',
-		paths: ['credential'],
+		paths: ['credential', 'lastRouteName'],
 	},
 })
