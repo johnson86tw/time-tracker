@@ -21,7 +21,7 @@
 		"noFallthroughCasesInSwitch": true,
 
 		// custom
-		"types": ["naive-ui/volar"],
+		"types": ["naive-ui/volar", "vite-plugin-pwa/client"],
 		"baseUrl": "./",
 		"paths": {
 			"@/*": ["src/*"]
