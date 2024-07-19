@@ -22,6 +22,13 @@ export default defineConfig({
 		}),
 
 		VitePWA({
+			strategies: 'injectManifest', // the vite-plugin-pwa plugin will compile your custom service worker and inject its precache manifest
+			injectRegister: 'inline', // register the service worker myself
+			srcDir: 'src/service-worker',
+			filename: 'sw.ts',
+			injectManifest: {
+				injectionPoint: undefined, // prevent from Error: Unable to find a place to inject the manifest
+			},
 			registerType: 'autoUpdate',
 			includeAssets: ['**/*'], // autoUpdate 的時候要把哪些東西更新
 			devOptions: {

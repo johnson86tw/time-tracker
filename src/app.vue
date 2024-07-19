@@ -24,16 +24,27 @@ watch(
 watch(tabbar, () => {
 	mainStore.setLastRouteName(tabbar.value)
 })
+
+const title = computed(() => {
+	const routeName = route.name as string
+	if (routeName) {
+		return routeName.charAt(0).toUpperCase() + routeName.slice(1)
+	}
+	return ''
+})
 </script>
 
 <template>
 	<van-config-provider theme="dark" class="h-screen">
+		<van-nav-bar :title="title" />
+
 		<RouterView class="h-[calc(100%-50px)] pb-[150px]" />
 
 		<van-tabbar v-model="tabbar" v-if="route.name !== 'login'">
 			<van-tabbar-item to="/" name="home" icon="home-o"></van-tabbar-item>
 			<van-tabbar-item to="/list" name="list" icon="notes-o"></van-tabbar-item>
 			<van-tabbar-item to="/clipboard" name="clipboard" icon="orders-o"></van-tabbar-item>
+			<van-tabbar-item to="/settings" name="settings" icon="setting-o"></van-tabbar-item>
 		</van-tabbar>
 	</van-config-provider>
 
